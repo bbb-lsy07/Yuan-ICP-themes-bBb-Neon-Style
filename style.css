@@ -1,0 +1,633 @@
+@import url('https://cdn.bootcdn.net/ajax/libs/noto-sans-sc/5.0.9/NotoSansSC-Regular.min.css');
+
+/* --- 页面加载动画 --- */
+#page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-color);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+}
+
+/* 当body没有.loaded类时（即加载中或切换中），显示加载动画 */
+body:not(.loaded) #page-loader {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 当body有.loaded类时，隐藏内容，以便动画可以平滑显示 */
+body:not(.loaded) .container {
+    opacity: 0;
+}
+
+#page-loader .loader-spinner {
+    border: 4px solid rgba(0, 255, 255, 0.2);
+    border-left-color: var(--neon-color);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1.2s linear infinite;
+    margin-bottom: 20px;
+}
+
+#page-loader .loader-text {
+    font-size: 1.1rem;
+    color: var(--neon-color);
+    text-shadow: 0 0 5px var(--neon-color);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- 根变量 --- */
+:root {
+    --primary-color: #6A1B9A;
+    --secondary-color: #9C27B0;
+    --accent-color: #FFD700;
+    --neon-color: #00ffff;
+    --glass-bg: rgba(10, 10, 25, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-color: #E0E0E0;
+    --dark-overlay: rgba(0, 0, 0, 0.6);
+    --code-bg: rgba(0, 0, 0, 0.7);
+    --sticky-header-bg: rgba(0, 0, 0, 0.5);
+}
+
+/* --- 通用重置和基础样式 --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+}
+
+body {
+    padding-top: 40px;
+    padding-bottom: 80px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    position: relative;
+    transition: opacity 0.4s ease-in-out;
+}
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: url('https://www.dmoe.cc/random.php') no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(8px);
+    opacity: 0.25;
+    z-index: -2;
+}
+
+/* --- 动态粒子背景 --- */
+#particle-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+    pointer-events: none; z-index: -1; overflow: hidden;
+}
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    animation-name: move-particles;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    bottom: -20px;
+}
+@keyframes move-particles {
+    to { transform: translateY(-105vh) rotate(360deg); }
+}
+
+/* 删除旧的 body 淡入淡出效果 */
+
+/* --- 文本和标题 --- */
+body, p, a, td, th, span, pre, input, textarea, button, label, select { color: var(--text-color); }
+.holographic-text {
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #ff6b6b);
+    background-size: 200% auto; background-clip: text; -webkit-background-clip: text;
+    color: transparent; animation: hologram 4s infinite linear, moveGradient 4s linear infinite;
+    font-size: 3rem; font-weight: 700;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+}
+@keyframes hologram { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+@keyframes moveGradient { 0% { background-position: 0% center; } 100% { background-position: -200% center; } }
+.note { font-size: 1rem; margin-top: 1rem; opacity: 0.8; }
+
+/* --- 容器和卡片 --- */
+.container {
+    background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+    padding: 40px; border-radius: 20px; width: 95%; max-width: 1100px;
+    margin: 20px auto; min-height: 80vh; position: relative; z-index: 1;
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out; /* 新增过渡效果 */
+}
+
+/* 新的容器淡入淡出效果 */
+body:not(.loaded) .container {
+    opacity: 0;
+    transform: translateY(10px);
+}
+body.loaded .container {
+    opacity: 1;
+    transform: translateY(0);
+}
+.card-effect {
+    background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    border-radius: 12px; padding: 25px; transition: all 0.3s ease;
+}
+.card-effect:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+
+/* --- 首页专属样式 --- */
+.header { text-align: center; margin-bottom: 2.5rem; }
+.about-section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; width: 100%; margin: 2.5rem 0; }
+.about-card { text-align: center; padding: 30px; }
+.about-card h3 { font-size: 1.2rem; margin-bottom: 1rem; color: var(--neon-color); }
+.neon-icon { display: block; font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 0 0 10px var(--neon-color); }
+.stats-section { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; width: 100%; margin-bottom: 2.5rem; }
+.stat-card { text-align: center; padding: 30px; }
+.stat-icon { font-size: 2.5rem; margin-bottom: 10px; color: var(--neon-color); text-shadow: 0 0 10px var(--neon-color); }
+.stat-number { font-size: 2.8rem; font-weight: bold; }
+.stat-title { font-size: 1rem; opacity: 0.8; }
+.main-content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; width: 100%; }
+.announcement-list { list-style: none; padding: 0; }
+.announcement-list li a { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--glass-border); text-decoration: none; color: var(--text-color); transition: all 0.3s; }
+.announcement-list li a:hover { color: var(--neon-color); background: rgba(0,255,255,0.05); }
+.badge-pinned { background-color: var(--accent-color); color: #000; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; margin-right: 10px; font-weight: bold; }
+.date { opacity: 0.6; font-size: 0.9em; }
+.view-all-link { display: inline-block; margin-top: 20px; color: var(--neon-color); text-decoration: none; font-weight: bold; }
+.cta-panel h2 { margin-top: 0; } .cta-panel .button-container { display: flex; flex-direction: column; gap: 15px; margin-top: 1.5rem; }
+
+/* --- 表单和按钮 --- */
+.form-container, .search-box, .content { max-width: 700px; margin: 0 auto; }
+.neon-form { border: 3px solid var(--neon-color); box-shadow: 0 0 18px var(--neon-color); animation: neonPulse 1.8s infinite alternate; padding: 25px; border-radius: 15px; display: flex; flex-direction: column; gap: 15px; width: 100%; }
+@keyframes neonPulse { from { box-shadow: 0 0 12px var(--neon-color), inset 0 0 6px var(--neon-color); } to { box-shadow: 0 0 30px var(--neon-color), inset 0 0 15px var(--neon-color); } }
+.search-input { width: 100%; padding: 14px 18px; border: 2px solid #555; border-radius: 12px; background: rgba(0,0,0,0.3); color: var(--text-color); transition: all 0.3s; }
+.search-input:focus { outline: none; border-color: var(--neon-color); box-shadow: 0 0 18px rgba(0, 255, 255, 0.7); background: rgba(0, 255, 255, 0.05); }
+
+.glow-button { padding: 14px 30px; border: none; border-radius: 12px; cursor: pointer; font-size: 17px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); color: #FFFFFF !important; position: relative; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); font-weight: 600; text-decoration: none; display: inline-block; }
+.glow-button:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(156, 39, 176, 0.5); }
+.glow-button .glow { position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent); transition: left 0.6s ease; }
+.glow-button:hover .glow { left: 100%; }
+
+/* --- 步骤指示器 (申请流程) --- */
+.step-indicator { display: flex; justify-content: space-around; margin-bottom: 2.5rem; position: relative; }
+.step { text-align: center; flex: 1; }
+.step-number { width: 40px; height: 40px; border: 2px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; background: var(--glass-bg); transition: all 0.3s ease; }
+.step-title { font-size: 0.9rem; opacity: 0.7; transition: all 0.3s ease; }
+.step.active .step-number { border-color: var(--neon-color); box-shadow: 0 0 10px var(--neon-color), inset 0 0 5px var(--neon-color); background: rgba(0, 255, 255, 0.2); color: #fff; }
+.step.active .step-title { opacity: 1; color: var(--neon-color); font-weight: bold; }
+.step.completed .step-number { border-color: #2ecc71; background: #2ecc71; color: #000; }
+.step.completed .step-title { opacity: 1; color: #2ecc71; }
+.step-indicator::before { content: ''; position: absolute; top: 19px; left: 15%; width: 70%; height: 2px; background: var(--glass-border); z-index: -1; }
+
+/* --- 号码选择 --- */
+.number-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* 稍微增加最小宽度，给缩放留出空间 */
+    gap: 1.2rem; /* 稍微增加间距 */
+    min-height: 220px; /* 关键！设置一个最小高度 */
+    align-content: flex-start; /* 让内容从顶部开始排列 */
+}
+.number-card { 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    padding: 1.2rem 0.8rem; 
+    text-align: center; 
+    position: relative; 
+    border: 2px solid transparent; 
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.3);
+}
+.number-card .number { 
+    font-size: 1.3rem; /* 稍微减小字体大小以适应更长的号码 */
+    font-weight: bold; 
+    letter-spacing: 1px; 
+    margin-bottom: 5px;
+    word-break: break-all; /* 关键：强制长字符串换行，解决溢出问题 */
+}
+.number-card:hover {
+    /* 对普通卡片也做类似处理 */
+    border-color: var(--neon-color); 
+    box-shadow: 0 0 20px var(--neon-color), inset 0 0 15px rgba(0,255,255,0.2);
+    transform: none;
+    background: rgba(0, 255, 255, 0.1);
+}
+.premium-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #000; /* 黑色文字以增强对比度 */
+    font-size: 0.6rem; /* 减小字体尺寸 */
+    font-weight: 600; /* 降低字重 */
+    background: var(--accent-color); /* 金色背景 */
+    padding: 2px 6px; /* 减小内边距 */
+    border-radius: 4px; /* 减小圆角 */
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5), 0 1px 2px rgba(0,0,0,0.2); /* 降低阴影强度 */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* 更微妙的边框 */
+    line-height: 1; /* 确保文字紧凑 */
+}
+.premium-number { 
+    color: var(--accent-color);
+    text-shadow: 0 0 5px var(--accent-color);
+}
+
+/* 靓号卡片特殊样式 - 修复版：降低背景强度，突出徽章识别 */
+.number-card.premium {
+    /* 移除强烈的背景色，改用更subtle的边框高亮 */
+    background: rgba(0, 0, 0, 0.3); /* 与普通卡片相同的背景 */
+    border: 2px solid rgba(255, 215, 0, 0.3); /* 降低边框透明度 */
+    position: relative;
+    overflow: hidden;
+}
+.number-card.premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+.number-card.premium:hover::before {
+    left: 100%;
+}
+.number-card.premium .number {
+    color: var(--accent-color);
+    text-shadow: 0 0 5px var(--accent-color); /* 降低发光强度 */
+    font-weight: 700; /* 降低字重 */
+}
+.number-card.premium:hover {
+    /* 悬停时只添加subtle的边框高亮，不要强烈的背景色 */
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); /* 降低发光强度 */
+    transform: none;
+    border-color: rgba(255, 215, 0, 0.6); /* 悬停时稍微增强边框 */
+    background: rgba(255, 215, 0, 0.05); /* 非常subtle的背景提示 */
+}
+
+/* 选中状态保持向上浮动效果，因为这是用户主动操作的结果，轻微抖动是可接受的反馈 */
+.number-card.selected {
+    border-color: var(--neon-color); 
+    box-shadow: 0 0 15px var(--neon-color), inset 0 0 10px rgba(0,255,255,0.2); 
+    transform: translateY(-5px); 
+    background: rgba(0, 255, 255, 0.1);
+}
+.number-card.premium.selected {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 20px var(--accent-color), inset 0 0 15px rgba(255,215,0,0.3);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.1));
+    transform: translateY(-5px);
+}
+
+/* 靓号说明提示 */
+.premium-notice {
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid var(--accent-color);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-top: 15px;
+    color: var(--accent-color);
+    font-size: 0.9rem;
+    display: none;
+}
+.premium-notice.visible {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 查询页面搜索框布局 - 最终修复版 --- */
+.search-box {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.search-box .neon-form {
+    flex-direction: row; /* 关键修复：强制水平排列 */
+    display: flex;
+    flex-wrap: nowrap; /* 桌面端绝对不换行 */
+    gap: 12px;
+    align-items: center;
+    width: fit-content; /* 让容器紧贴内容 */
+    max-width: none; /* 移除最大宽度限制 */
+    min-width: auto; /* 移除最小宽度限制 */
+    padding: 20px;
+}
+
+.search-box .input-group-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 1; /* 允许收缩但保持基本尺寸 */
+}
+
+.search-box .neon-form .search-input {
+    width: 180px; /* 固定宽度，避免弹性布局问题 */
+    flex-shrink: 0; /* 不允许收缩 */
+}
+
+.search-box .neon-form .note {
+    margin: 0;
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.9rem; /* 稍微缩小字体节省空间 */
+}
+
+.search-box .neon-form button {
+    flex-shrink: 0; /* 绝对不允许按钮被压缩 */
+    margin-top: 0;
+    white-space: nowrap; /* 防止按钮文字换行 */
+}
+
+/* 响应式调整 - 最终版 */
+@media (max-width: 1200px) {
+    .search-box .neon-form .search-input {
+        width: 160px; /* 在较小屏幕上减少输入框宽度 */
+    }
+}
+
+@media (max-width: 1000px) {
+    .search-box .neon-form .search-input {
+        width: 140px; /* 进一步减少宽度 */
+    }
+    .search-box .neon-form {
+        gap: 10px; /* 减少间距 */
+    }
+}
+
+@media (max-width: 768px) {
+    .search-box .neon-form {
+        flex-direction: column; /* 垂直排列 */
+        gap: 15px;
+        width: 100%;
+        max-width: 400px;
+    }
+    .search-box .input-group-wrapper {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+    .search-box .neon-form .search-input {
+        width: 100%; /* 手机上占满宽度 */
+    }
+    .search-box .neon-form button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-box .neon-form {
+        padding: 15px;
+    }
+}
+
+/* 结果页面代码样式 - 改进版 */
+pre {
+    background: var(--code-bg);
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 15px 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* 代码容器改进 */
+.code-container {
+    position: relative;
+    margin: 20px 0;
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--glass-border);
+    cursor: pointer; /* 提示可点击 */
+    transition: all 0.3s ease; /* 增加过渡效果 */
+}
+
+.code-container:hover {
+    border-color: var(--neon-color); /* 悬停高亮 */
+}
+
+/* 复制成功后的样式 */
+.code-container.copied {
+    border-color: #2ecc71;
+    box-shadow: 0 0 10px #2ecc71;
+}
+
+/* 复制反馈文本样式 */
+.copy-feedback {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #2ecc71;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.code-container pre {
+    margin: 0;
+    padding: 15px; /* 可以适当调整内边距 */
+    background: transparent;
+}
+
+/* 移除旧的 .copy-button 样式 */
+
+/* 迁跃页面改进 */
+.travel-info {
+    text-align: center;
+    padding: 30px;
+}
+.travel-info h2 {
+    margin-bottom: 20px;
+}
+.travel-info p {
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+#countdown {
+    font-size: 1.5rem;
+    margin: 0 5px;
+}
+
+/* --- 表格 --- */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--glass-bg); }
+th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+th { color: var(--accent-color); }
+
+/* --- 迁跃页面 - 改进版 --- */
+.travel-body { 
+    overflow: hidden; 
+    background: #000; 
+    padding: 0; 
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#space-canvas { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    z-index: 0; 
+}
+.travel-container { 
+    z-index: 1; 
+    background: rgba(10, 10, 25, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 191, 255, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 0 50px rgba(0, 191, 255, 0.5),
+                inset 0 0 20px rgba(0, 191, 255, 0.2);
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+}
+.travel-info {
+    padding: 20px;
+}
+.travel-info h2 {
+    margin-bottom: 20px;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+    font-size: 2.2rem;
+}
+.travel-info p {
+    margin: 15px 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+#countdown { 
+    color: #00ffff; 
+    font-weight: bold; 
+    font-size: 2rem;
+    text-shadow: 0 0 15px #00ffff;
+    animation: pulse 1s infinite alternate;
+}
+@keyframes pulse { 
+    from { 
+        text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; 
+    } 
+    to { 
+        text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; 
+    } 
+}
+
+/* 迁跃目标信息框 */
+.travel-target {
+    background: rgba(0, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+/* 迁跃页面系统状态面板 */
+.system-status-panel {
+    margin-top: 30px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    text-align: left;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #00ffaa;
+}
+
+.system-status-panel .status-text {
+    margin: 5px 0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* 打字光标效果 */
+#typing-status::after {
+    content: '█';
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+.travel-target p {
+    margin: 8px 0;
+    font-size: 1rem;
+}
+.travel-target a {
+    color: #00ffff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.travel-target a:hover {
+    text-shadow: 0 0 8px #00ffff;
+    color: #ffffff;
+}
+
+/* 迁跃失败样式 */
+.travel-fail {
+    background: rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 12px;
+    padding: 30px;
+    margin: 20px 0;
+}
+.travel-fail h2 {
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700;
+}
+.travel-fail p {
+    color: #ffffff;
+}
+
+/* --- 页脚 & Github角标 --- */
+.footer { text-align: center; padding: 12px; font-size: 15px; position: fixed; bottom: 0; left: 0; width: 100%; background: var(--glass-bg); backdrop-filter: blur(15px); box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3); z-index: 999; }
+.footer a { text-decoration: none; margin: 0 12px; color: var(--text-color); }
+.footer a:hover { color: var(--accent-color); }
+.github-corner { position: fixed; top: 0; right: 0; width: 85px; height: 85px; background: var(--glass-bg); backdrop-filter: blur(18px); clip-path: polygon(100% 0, 0 0, 100% 100%); z-index: 1000; }
+.github-link { position: absolute; top: 18px; right: 10px; text-decoration: none; font-size: 13px; transform: rotate(45deg); white-space: nowrap; color: #FFFFFF !important; }
+
+/* --- 响应式设计 --- */
+@media (max-width: 992px) {
+    .about-section, .stats-section, .main-content-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    body { padding-top: 20px; padding-bottom: 120px; }
+    .container { padding: 20px; }
+    h1, .holographic-text { font-size: 2rem; }
+    .footer a { display: inline-block; margin: 5px 8px; }
+}
